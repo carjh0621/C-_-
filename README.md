@@ -6,21 +6,22 @@
 
 ## 구성 요소
 - `aggregator/main.py`: 스케줄러와 수집 로직의 진입점
-- `fetchers/`: 각 서비스별 메시지 수집 모듈. 기본 구현은 `DATA_PATH`\
-  환경 변수(기본값 `data`)로 지정된 디렉터리에서 텍스트 파일을 읽어
-  메시지를 가져옵니다.
+- `fetchers/`: 각 서비스별 메시지 수집 모듈. Gmail, KakaoTalk, Messenger,
+  Instagram, 포털 등에서 직접 메시지를 가져옵니다.
 - `parser.py`: 메시지에서 날짜 형식을 찾아 일정 문장으로 추출
 - `markdown_writer.py`: Obsidian Vault 등에 저장할 Markdown 파일 작성
 
 ## 사용 방법
 1. 필요한 라이브러리 설치
    ```bash
-   pip install schedule pytz
+   pip install -r requirements.txt
    ```
 2. `VAULT_PATH` 환경변수로 Markdown을 저장할 디렉터리를 지정합니다.
-3. `DATA_PATH` 환경변수로 메시지 텍스트 파일이 위치한 디렉터리를
-   지정할 수 있습니다. 기본값은 프로젝트의 `data/` 폴더입니다.
+3. 서비스별로 필요한 인증 정보를 환경 변수나 설정 파일로 제공합니다.
+   주요 변수는 다음과 같습니다.
+   - `GMAIL_TOKEN_FILE`: Gmail OAuth 토큰 JSON 파일 경로
+   - `KAKAO_EXPORT_PATH`: KakaoTalk 채팅 내보내기 파일 경로
+   - `FB_ACCESS_TOKEN`, `FB_THREAD_ID`: Messenger API 토큰과 대화 ID
+   - `IG_ACCESS_TOKEN`, `IG_THREAD_ID`: Instagram API 토큰과 스레드 ID
+   - `PORTAL_URL`, `PORTAL_USERNAME`, `PORTAL_PASSWORD`: 포털 주소와 로그인 정보
 4. `python aggregator/main.py` 실행 후 안내에 따라 일정을 정리합니다.
-
-실제 서비스 연동이 필요하다면 각 fetcher 모듈을 API 호출 코드로
-교체하면 됩니다.

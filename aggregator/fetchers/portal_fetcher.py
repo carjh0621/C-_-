@@ -1,12 +1,28 @@
 """학교/회사 포털 일정 수집 모듈."""
 from typing import List
 import os
-
-from .gmail_fetcher import _read_lines
+import requests
+from bs4 import BeautifulSoup
 
 
 def fetch_portal_messages() -> List[str]:
-    """샘플 포털 메시지를 읽어 반환합니다."""
-    data_dir = os.environ.get("DATA_PATH", "data")
-    file_path = os.path.join(data_dir, "portal.txt")
-    return _read_lines(file_path)
+    """포털 사이트에서 일정 관련 메시지를 스크래핑합니다."""
+    base_url = os.environ.get("PORTAL_URL")
+    username = os.environ.get("PORTAL_USERNAME")
+    password = os.environ.get("PORTAL_PASSWORD")
+
+    if not base_url or not username or not password:
+        return []
+
+    session = requests.Session()
+    try:
+        login_resp = session.post(f"{base_url}/login", data={"username": username, "password": password}, timeout=10)
+        if login_resp.status_code != 200:
+            return []
+        resp = session.get(f"{base_url}/messages", timeout=10)
+        if resp.status_code != 200:
+            return []
+        soup = BeautifulSoup(resp.text, "html.parser")
+        return [item.get_text(strip=True) for item in soup.select(".message")]
+    except Exception:
+        return []
