@@ -2,16 +2,32 @@
 from typing import List
 import os
 
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from google.oauth2.credentials import Credentials
 
-def _read_lines(path: str) -> List[str]:
-    if not os.path.exists(path):
-        return []
-    with open(path, "r", encoding="utf-8") as f:
-        return [line.strip() for line in f.readlines() if line.strip()]
+SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
 
 def fetch_gmail_messages() -> List[str]:
-    """샘플 Gmail 메시지를 읽어 반환합니다."""
-    data_dir = os.environ.get("DATA_PATH", "data")
-    file_path = os.path.join(data_dir, "gmail.txt")
-    return _read_lines(file_path)
+    """Gmail API를 통해 최근 메일 메시지를 수집합니다."""
+    token_file = os.environ.get("GMAIL_TOKEN_FILE")
+    if not token_file or not os.path.exists(token_file):
+        return []
+
+    try:
+        creds = Credentials.from_authorized_user_file(token_file, SCOPES)
+        service = build("gmail", "v1", credentials=creds)
+        results = service.users().messages().list(userId="me", q="newer_than:7d").execute()
+        ids = results.get("messages", [])
+        messages: List[str] = []
+        for msg in ids:
+            detail = service.users().messages().get(userId="me", id=msg["id"], format="full").execute()
+            snippet = detail.get("snippet")
+            if snippet:
+                messages.append(snippet)
+        return messages
+    except HttpError:
+        return []
+    except Exception:
+        return []
