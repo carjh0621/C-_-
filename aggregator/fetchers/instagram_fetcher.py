@@ -1,6 +1,12 @@
 """Instagram DM 수집 모듈."""
 from typing import List
+import os
+
+from .gmail_fetcher import _read_lines
+
 
 def fetch_instagram_messages() -> List[str]:
-    # TODO: Instagram Graph API 또는 크롤링 구현
-    return []
+    """샘플 Instagram 메시지를 읽어 반환합니다."""
+    data_dir = os.environ.get("DATA_PATH", "data")
+    file_path = os.path.join(data_dir, "instagram.txt")
+    return _read_lines(file_path)
