@@ -3,6 +3,7 @@ import pytz
 import schedule
 import time
 from datetime import datetime
+import argparse
 
 from fetchers.gmail_fetcher import fetch_gmail_messages
 from fetchers.kakao_fetcher import fetch_kakao_messages
@@ -46,6 +47,18 @@ def daily_task():
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Schedule aggregator")
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Run the daily task once immediately and exit",
+    )
+    args = parser.parse_args()
+
+    if args.once:
+        daily_task()
+        return
+
     schedule.every().day.at("22:00").do(daily_task)
     while True:
         schedule.run_pending()
