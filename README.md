@@ -25,3 +25,17 @@
    - `IG_ACCESS_TOKEN`, `IG_THREAD_ID`: Instagram API 토큰과 스레드 ID
    - `PORTAL_URL`, `PORTAL_USERNAME`, `PORTAL_PASSWORD`: 포털 주소와 로그인 정보
 4. `python aggregator/main.py` 실행 후 안내에 따라 일정을 정리합니다.
+
+## 스케줄 동작
+프로그램을 실행하면 스케줄러가 매일 22:00까지 대기합니다. 그때까지는
+화면에 아무 메시지도 표시되지 않으므로 정지한 것처럼 보일 수 있습니다.
+
+## 빠르게 테스트하기
+동작을 바로 확인하려면 다음 방법 중 하나를 사용합니다.
+
+1. `--once` 플래그를 사용해 즉시 한 번만 실행합니다.
+   ```bash
+   python aggregator/main.py --once
+   ```
+2. `aggregator/main.py`에서 `schedule.every().day.at("22:00")` 부분을
+   가까운 시간으로 임시 수정한 뒤 실행합니다.
